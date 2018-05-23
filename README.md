@@ -84,4 +84,4 @@ optional arguments:
                         doesn't work in this mode.)
 
 ```
-If you want to know more about *wifiace* please refer the [wiki](https://bitbucket.org/a5hish/wifiace/wiki).
+If you want to know more about *wifiace* please refer the [wiki](https://github.com/wifiace/wifiace/wiki).
