@@ -1,0 +1,74 @@
+<html>
+	<head>
+		<title>login</title>
+		<!-- Bootstrap files  -->
+		<link rel="stylesheet" href="{{url_for('static',filename='lib/bootstrap.min.css')}}">
+
+		<!-- jQuery library -->
+		<script src="{{url_for('static',filename='lib/jquery.min.js')}}"></script>
+
+		<script src="{{url_for('static',filename='lib/bootstrap.min.js')}}"></script>
+
+		<style>
+			body{
+				background: #f5f5f5;
+			}
+
+			.panel-body{
+				box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.75);
+			}
+
+		</style>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">WifiACE</a>
+    </div>
+  </div>
+</nav>
+		<div class="col-lg-12 text-center" style="height:15%;"></div>
+
+		<div class="col-lg-4"></div>
+
+		<div id="login" class="col-lg-4">
+		<div class="panel panel-default">
+		  <div class="panel-body">
+
+        <form  method="POST" action=" {{ url_for('login.check_login') }} ">
+					<h3 class="text-center">Log in to your account.</h3>
+					<br><br>
+					<div class="form-group">
+            {{ form.username(class="form-control", placeholder="Username") }}
+          </div>
+
+          <div class="form-group">
+            {{ form.password(class="form-control", placeholder="Password") }}
+          </div>
+					<br>
+           {{ form.login(class="btn btn-info pull-right ") }}
+
+        </form>
+				<br><br>
+
+				<!-- Message Part -->
+					{% with messages = get_flashed_messages(with_categories=true) %}
+						{% if messages %}
+							{% for category, message in messages %}
+								<div class="alert alert-{{category}}">{{ message }}</div>
+							{% endfor %}
+						{% endif %}
+					{% endwith %}
+				<!--Ends-->
+
+		  </div>
+		</div>
+    </div>
+
+		<div class="col-lg-4"></div>
+
+
+
+	</body>
+</html>

@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+
+{% block title %} Networking {% endblock %}
+
+
+{% block head %}
+<script type=text/javascript  src="{{ url_for('static', filename='js/networking.js') }}" ></script>
+{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+  <h1>Networking <small></small></h1>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Kernel Routing Table</h3>
+  </div>
+  <div class="panel-body">
+    <pre>
+      {{ kroute }}
+    </pre>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title ">Wireless Interfaces
+      <button id="rfkill-unblock" type="button" class="btn btn-link pull-right" aria-label="Left Align" data-toggle="tooltip" data-placement="top" title="rfkill unblock all interfaces." >
+        <i href="/networking/rfkill_unblock"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></i>
+      </button>
+    </h3>
+  </div>
+  <div class="panel-body">
+    <table class="table">
+      <tr>
+        <th>Name</th>
+        <th>Channel</th>
+        <th>IPv4</th>
+        <th>MAC</th>
+        <th>Status</th>
+        <th>Monitor Mode</th>
+        <th>Priority</th>
+      </tr>
+      {% for w in wirelessInfo %}
+        <tr>
+          <td>{{ w["name"] }}</td>
+          <td>{% if w["channel"] != "-1" %} {{ w['channel'] }} {% else %}None{% endif %}</td>
+          <td>{{ w["ipv4"] }}</td>
+          <td> <button class="btn btn-link" type="button" data-toggle="modal" data-target="#macChangerModel" >{{ w["mac"] }}</button> </td>
+          <td>
+            <button type="button" class="btn btn-default toggle-istatus" data-toggle="tooltip" data-placement="right"
+            title="Click to {% if w['status']=="up" %} Disabled {% else %} Enable {% endif %} the interface"
+            value="{{ w['status'] }}" >
+            {{ w['status'] }}
+          </button>
+          </td>
+          <td>
+            {% if "inUsed" in w :%}
+              <button type="button" class="btn btn-default toggle-inused" data-toggle="tooltip" data-placement="right"
+              title="Click to {% if w['inUsed']==False %} use {% else %} remove {% endif %} the interface"
+              value="{{ w['inUsed'] }}" >
+              {% if w['inUsed']==True %} Enabled {% else %} Disabled {% endif %}
+            {% else %}
+              <span class="label label-default">monitor mode not supported</span>
+            {% endif %}
+          </button>
+          </td>
+
+          <td>
+          {% if w['inUsed']==True %}
+            <div class="btn-group" data-toggle="buttons" >
+              <label class="btn btn-primary btn-sm {% if w['priority']==0 %} active {% endif %}">
+                <input type="radio" value="0" name="priority-options" autocomplete="off" {% if w['priority']==0 %} checked {% endif %}> Primary
+              </label>
+              <label class="btn btn-primary btn-sm  {% if w['priority']==1 %} active {% endif %}">
+                <input type="radio" value="1" name="priority-options" autocomplete="off" {% if w['priority']==1 %} checked {% endif %}> Secondary
+              </label>
+            </div>
+
+          {% else %}
+
+            <span class="label label-default">Device is not in used.</span>
+
+          {% endif %}
+           </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Wired Interfaces</h3>
+  </div>
+  <div class="panel-body">
+    <table class="table">
+      <tr>
+        <th>Name</th>
+        <th>IPv4</th>
+        <th>MAC</th>
+        <th>Status</th>
+      </tr>
+      {% for w in wiredInfo: %}
+      <tr>
+        <td>{{ w["name"] }}</td>
+        <td>{{ w["ipv4"] }}</td>
+        <td>{{ w["mac"] }}</td>
+        <td>
+          <button type="button" class="btn btn-default toggle-istatus" data-toggle="tooltip" data-placement="right"
+          title="Click to {% if w['status']=="up" %} Disabled {% else %} Enable {% endif %} the interface"
+          value="{{ w['status'] }}" >
+
+          {{ w['status'] }}
+        </button>
+
+        </td>
+        
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="macChangerModel" tabindex="-1" role="dialog" aria-labelledby="macModelLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="macModelLabel">MAC</h4>
+      </div>
+      <div class="modal-body">
+
+        <div id="mac-model-msg"></div>
+
+        <label>Change MAC address of the interface</label>
+        <div class="input-group">
+          <span class="input-group-addon">Interface</span>
+          <input id="mac-text" class="form-control" type="text" >
+          <div class="input-group-btn">
+            <button id="get-random-mac" type="button" class="btn btn-default">Random mac</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="save-mac" type="button" class="btn btn-default">Save changes</button>
+        <button id="restore-mac" type="button" class="btn btn-default">Restore Real Mac</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

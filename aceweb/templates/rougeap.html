@@ -1,0 +1,263 @@
+{% extends "layout.html" %}
+
+{% block title %} RougeAP {% endblock %}
+
+{% block head %}
+<script>
+  $(document).ready(function(){
+    // check if wireless_setup is open if yes hide password field
+    if($('input[name=wireless_setup]:checked').val()=="open"){
+      $('#passwd-field').hide();
+    }
+
+    $('input:radio[name="wireless_setup"]').change(
+        function(){
+            if (this.checked && this.value == 'secure')
+              $('#passwd-field').show();
+            else
+              $('#passwd-field').hide();
+
+    });
+
+    // restore default configurations .
+    $('#restore-config').click(function(){
+        if(confirm("Restore default configurations ?")){
+          // redirect to the given url
+          window.location = "/rougeap/restore_default_config"
+        }
+    });
+
+    // start rougeap
+    $('#start-rougeap').click(function(){
+        $(this).prop('disabled', true);
+        window.location = "/rougeap/start_rougeap"
+    });
+
+    // stop rougeap
+    $('#stop-rougeap').click(function(){
+        $(this).prop('disabled', true);
+        window.location = "/rougeap/stop_rougeap"
+    });
+
+    $("#mana-option").change(function(){
+      option=""
+      if( $(this).prop('checked') ){
+        option = "mana_enable"
+      }else{
+        option = "mana_disable"
+      }
+      console.log(option)
+      $.ajax({
+      url: '/rougeap/change_hostapd_options',
+      data: {option:option},
+      type: 'GET',
+
+      success: function(response) {
+          console.log(response);
+      },
+      error: function(error) {
+          console.log(error);
+      }
+      });
+    });
+
+    $("#loud-option").change(function(){
+      option=""
+      if( $(this).prop('checked') ){
+        option = "mana_loud_on"
+      }else{
+        option = "mana_loud_off"
+      }
+
+      $.ajax({
+      url: '/rougeap/change_hostapd_options',
+      data: {option:option},
+      type: 'GET',
+
+      success: function(response) {
+          console.log(response);
+      },
+      error: function(error) {
+          console.log(error);
+      }
+      });
+    });
+
+    $("#macacl-option").change(function(){
+      option=""
+      if( $(this).prop('checked') ){
+        option = "mana_macacl_on"
+      }else{
+        option = "mana_macacl_off"
+      }
+
+      $.ajax({
+      url: '/rougeap/change_hostapd_options',
+      data: {option:option},
+      type: 'GET',
+
+      success: function(response) {
+          console.log(response);
+      },
+      error: function(error) {
+          console.log(error);
+      }
+      });
+    });
+
+
+  });
+
+
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h1><small>Rouge</small>AP</h1>
+</div>
+
+<div class="col-lg-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">RougeAP configurations</h3>
+    </div>
+    <div class="panel-body">
+    <form method="POST" action="{{ url_for('rougeap.save_config') }}">
+
+            <div class="form-group">
+             <a class="list-group-item active" role="tab" data-toggle="collapse" href="#hostapd-adv-options" aria-expanded="false" aria-controls="hostapd-adv-options">
+              <h5 class="list-group-item-heading">Advance Options : </h5>
+             </a>
+             <div id="hostapd-adv-options" class="collapse">
+               <li class="list-group-item">{{ form.enable_mana }} {{ form.enable_mana.label }}</li>
+               <li class="list-group-item">{{ form.mana_loud }} {{ form.mana_loud.label }}</li>
+               <li class="list-group-item">{{ form.mana_macacl }} {{ form.mana_macacl.label }}</li>
+               <li class="list-group-item">{{ form.macaddr_acl }} {{ form.macaddr_acl.label }}</li>
+            </div>
+             <br>
+             <div class="input-group">
+               <span class="input-group-addon">{{ form.gateway_interface.label.text }}</span>
+               {{ form.gateway_interface(class='form-control') }}
+             </div>
+              <br>
+             <hr>
+            <h4>DHCP options:</h4>
+            <div class="input-group">
+              <span class="input-group-addon">{{ form.ip_start.label.text }}</span>
+              {{ form.ip_start(class='form-control') }}
+              <span class="input-group-addon">{{ form.ip_end.label.text }}</span>
+              {{ form.ip_end(class='form-control') }}
+            </div>
+            <br>
+            <div class="input-group">
+              <span class="input-group-addon">{{ form.interface_ip.label.text }}</span>
+              {{ form.interface_ip(class='form-control') }}
+            </div>
+
+            </div>
+
+            <hr>
+            <div class="form-inline">
+            {{ form.wireless_setup.label }}
+            {% for subfield in form.wireless_setup %}
+                {{ subfield(class='radio-inline') }}
+                {{ subfield.label.text }}
+            {% endfor %}
+            </div>
+
+            <div class="input-group">
+              <span class="input-group-addon">{{ form.ssid.label.text }}	&nbsp; &nbsp; &nbsp; &nbsp;</span>
+              {{ form.ssid(class='form-control') }}
+            </div>
+            <br>
+            <div class="input-group" id="passwd-field">
+              <span class="input-group-addon">{{ form.password.label.text }}</span>
+              {{ form.password(class='form-control') }}
+            </div>
+            <br>
+
+            <input type="submit" class="btn btn-default" value="Save configurations">
+            <button id="restore-config" type="button" class="btn btn-default">Restore Defaults</button>
+    </form>
+    </div>
+  </div>
+</div>
+
+<div class="col-lg-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Daemon</h3>
+    </div>
+  <div class="panel-body">
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Process</th>
+            <th>PID</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>hostapd</td>
+            <td>
+              {% if deamonStatus["hostapd"]==-1 %}
+                <span class="text-warning" >Not running</span>
+              {% else %}
+                <span class="text-info" >{{ deamonStatus["hostapd"] }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>dnsmasq</td>
+            <td>
+              {% if deamonStatus["dnsmasq"]==-1 %}
+                <span class="text-warning" >Not running</span>
+              {% else %}
+                <span class="text-info" >{{ deamonStatus["dnsmasq"] }}</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <a class="list-group-item active" role="tab" data-toggle="collapse" href="#rougeap-adv-options" aria-expanded="false" aria-controls="rougeap-adv-options">
+       <h5 class="list-group-item-heading">RougeAP Options : </h5>
+      </a>
+        <div id="rougeap-adv-options" class="collapse">
+          {% if deamonStatus["hostapd-options"] %}
+          <li class="list-group-item">
+            <table class="table">
+              <tr>
+                <td><label> Enable MANA  </label></td>
+                <td> <input id="mana-option" data-on="ON" data-off="OFF" type="checkbox" data-size="mini" data-toggle="toggle" {% if deamonStatus["hostapd-options"]["mana"]==True %} checked {% endif %}></td>
+              </tr>
+
+              <tr>
+                <td><label> Aggressive MANA </label></td>
+                <td> <input id="loud-option" data-on="ON" data-off="OFF" type="checkbox" data-size="mini" data-toggle="toggle" {% if deamonStatus["hostapd-options"]["mana-loud"]==True %} checked {% endif %} ></td>
+              </tr>
+              <tr>
+                <td><label> Mana MAC Filter </label></td>
+                <td> <input id="macacl-option" data-on="ON" data-off="OFF" type="checkbox" data-size="mini" data-toggle="toggle" {% if deamonStatus["hostapd-options"]["mana-macacl"]==True %} checked {% endif %} ></td>
+              </tr>
+            </table>
+          </li>
+
+          {% else %}
+          <li class="list-group-item"> <span class="text-warning">Hostapd is Not running</span> </li>
+          {% endif %}
+
+        </div>
+    </div>
+    <div class="panel-footer">
+      <button class="btn btn-default" type="button" id="start-rougeap" {% if deamonStatus["hostapd-options"] %} disabled {% endif %} >Start RougeAP</button>
+      <button class="btn btn-default" type="button" id="stop-rougeap" >Stop RougeAP</button>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

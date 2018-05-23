@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block title %} Settings {% endblock %}
+
+{% block head %}
+<script type="text/javascript">
+  function operations(choice, str){
+    /*
+      RW = restart WiFiACE
+      SW = shutdown WiFiACE
+      RS = restart System
+      SS = shutdown system
+    */
+    if(confirm("Are you sure you want to " + str + "?")){
+
+      switch (choice) {
+        case "RW":
+          restart_server();
+          break;
+        case "SW":
+          shutdown_server();
+          break;
+
+        case "RS":
+          window.location = "/settings/system_restart";
+          break;
+        case "SS":
+          window.location = "/settings/system_shutdown";
+          break;
+
+      }
+    }
+  }
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h1>Settings</small></h1>
+</div>
+
+<div class="col-lg-12">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Server & System controles</h3>
+    </div>
+    <div class="panel-body">
+
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-body list-group " >
+
+            <a href="#" class="list-group-item" onclick="operations('RW', 'Restart WiFiACE');"> <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span> Restart
+              <p class="list-group-item-text">This option will restart <b><code>WiFiACE</code></b>.</p>
+            </a>
+
+            <a href="#" class="list-group-item" onclick="operations('SW', 'Shutdown WiFiACE');"> <span class="glyphicon glyphicon-off" aria-hidden="true"></span> Shutdown
+              <p class="list-group-item-text">This option will shutdown <b><code>WiFiACE</code></b>.</p>
+            </a>
+          </div>
+          <div class="panel-footer">Server Controles</div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-body list-group " >
+
+            <a href="#" class="list-group-item" onclick="operations('RS', 'Restart System');"> <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span> Restart
+              <p class="list-group-item-text">This option will restart the whole <b><code>SYSTEM</code></b>.</p>
+            </a>
+
+            <a href="#" class="list-group-item" onclick="operations('RS', 'shutdown System');"> <span class="glyphicon glyphicon-off" aria-hidden="true"></span> Shutdown
+              <p class="list-group-item-text">This option will shutdown the whole <b><code>SYSTEM</code></b>.</p>
+            </a>
+
+          </div>
+          <div class="panel-footer">System Controles</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="col-lg-12">
+  <div  class="panel panel-default ">
+    <div class="panel-heading">
+      <h4 class="panel-title">Change Password</h4>
+    </div>
+    <div class="panel-body">
+
+      <span class="label label-danger">New password can contain between 4 - 15 characters and should not include spaces.</span>
+
+      <form  method="POST" action=" {{ url_for('settings.changes_password') }} ">
+        <div class="form-group">
+          <label for="old_password">{{ form.old_password.label }}</label>
+          {{ form.old_password(class="form-control", placeholder="Enter Old Password") }}
+        </div>
+
+        <div class="form-group">
+          <label for="new_password"> {{ form.new_password.label }}</label>
+          {{ form.new_password(class="form-control", placeholder="Enter New Password") }}
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password"> {{ form.confirm_password.label }}</label>
+          {{ form.confirm_password(class="form-control", placeholder="Repeat Password") }}
+        </div>
+
+         <input type="submit" class="btn btn-primary pull-right" value="Change Password">
+      </form>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

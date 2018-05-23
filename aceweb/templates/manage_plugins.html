@@ -1,0 +1,232 @@
+{% extends "layout.html" %}
+
+{% block title %} Plugin Manager {% endblock %}
+
+{% block head %}
+<script>
+
+  $(document).ready(function(){
+
+    // ----------- Update
+    $('#update-list').click(function(){
+      $.ajax({
+      url: '/plugins/manage_plugins/update_source_list',
+
+      beforeSend: function(){
+        $('#update-list').attr('disabled','disabled');
+      },
+      complete: function(){
+        $('#update-list').removeAttr('disabled');
+      },
+      success: function(response) {
+          console.log(response);
+          window.location = document.URL
+      },
+      });
+    });
+
+
+    // ------ Remove
+    $('#removeModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var plugin_name = $(button).closest('tr').find('td:eq(0)').text();
+
+      var modal = $(this);
+      modal.find('.modal-title').text(plugin_name);
+    });
+
+    $('#removeModal').on('hide.bs.modal', function (event) {
+      $('#removeModalMsg').html('');
+    });
+
+    $('#remove-plugin').click(function(){
+      var plugin_name = $('#removeModal').find('.modal-title').text();
+
+      $.ajax({
+      url: '/plugins/manage_plugins/remove/'+plugin_name,
+
+      beforeSend: function(){
+        $('#remove-plugin').attr('disabled','disabled');
+      },
+      complete: function(){
+        $('#remove-plugin').removeAttr('disabled');
+      },
+      success: function(response) {
+          $('#removeModalMsg').html('<div class="alert alert-success" role="alert">{message}</div>'.formatUnicorn({message:response['message']}));
+          console.log(response);
+          restart_server();
+      },
+      error: function(error) {
+          $('#removeModalMsg').html('<div class="alert alert-warning" role="alert">{message}</div>'.formatUnicorn({message:error.responseJSON["message"]}));
+          console.log(error);
+      }
+      });
+
+    });
+
+    // ----- install
+    $('#installModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var plugin_name = $(button).closest('tr').find('td:eq(0)').text();
+
+      var modal = $(this);
+      modal.find('.modal-title').text(plugin_name);
+    });
+
+    $('#installModal').on('hide.bs.modal', function (event) {
+      $('#installModalMsg').html('');
+    });
+
+    $('#install-plugin').click(function(){
+      var plugin_name = $('#installModal').find('.modal-title').text();
+
+      $.ajax({
+      url: '/plugins/manage_plugins/install/'+plugin_name,
+
+      beforeSend: function(){
+        $('#install-plugin').attr('disabled','disabled');
+      },
+      complete: function(){
+        $('#install-plugin').removeAttr('disabled');
+      },
+      success: function(response) {
+          $('#installModalMsg').html('<div class="alert alert-success" role="alert">{message}</div>'.formatUnicorn({message:response['message']}));
+          console.log(response);
+          restart_server();
+      },
+      error: function(error) {
+          $('#installModalMsg').html('<div class="alert alert-warning" role="alert">{message}</div>'.formatUnicorn({message:error.responseJSON["message"]}));
+          console.log(error);
+      }
+      });
+
+    });
+
+  });
+
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h1>Plugins</h1>
+</div>
+
+<div>
+
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#installed-tab" aria-controls="installed-tab" role="tab" data-toggle="tab">Installed Plugins</a></li>
+    <li role="presentation"><a href="#download-tab" aria-controls="download-tab" role="tab" data-toggle="tab">Download Plugin</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="installed-tab">
+      <br>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <th>Name</th>
+            <th>Version</th>
+            <th>Author</th>
+            <th>Description</th>
+            <th>Option</th>
+
+          </thead>
+          <tbody>
+            {% for i in range(installed_plugins|length) %}
+              <tr>
+                <td>{{installed_plugins[i]["name"]}}</td>
+                <td>{{installed_plugins[i]["version"]}}</td>
+                <td>{{installed_plugins[i]["author"]}}</td>
+                <td>{{installed_plugins[i]["description"]}}</td>
+                <td>
+                  <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#removeModal">remove</button>
+                </td>
+
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Remove Modal -->
+        <div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="removeModal">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Plugin Name</h4>
+              </div>
+              <div class="modal-body">
+                <div id="removeModalMsg"></div>
+
+                <h4>Are you sure you want to remove this plugin ?</h4>
+                <small>(This will restart the server too.)</small>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="remove-plugin">Remove and Restart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="download-tab">
+      <br>
+      <button id='update-list' type="button" class="btn btn-default"> Sync Plugin List</button>
+      <br>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <th>Name</th>
+            <th>Version</th>
+            <th>Author</th>
+            <th>Description</th>
+            <th>Option</th>
+          </thead>
+          <tbody>
+            {% for i in range(download_plugins|length) %}
+              <tr>
+                <td>{{download_plugins[i]["name"]}}</td>
+                <td>{{download_plugins[i]["version"]}}</td>
+                <td>{{download_plugins[i]["author"]}}</td>
+                <td>{{download_plugins[i]["description"]}}</td>
+                <td>
+                  <button class="btn btn-info" type="button" data-toggle="modal" data-target="#installModal">install</button>
+                </td>
+
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Remove Modal -->
+      <div class="modal fade" id="installModal" tabindex="-1" role="dialog" aria-labelledby="installModal">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Plugin Name</h4>
+            </div>
+            <div class="modal-body">
+              <div id="installModalMsg"></div>
+
+              <h4>Are you sure you want to install this plugin ?</h4>
+              <small>(This will restart the server too.)</small>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-info" id="install-plugin">Install and Restart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

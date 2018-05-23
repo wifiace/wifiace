@@ -1,0 +1,7 @@
+Flask
+flask-wtf
+pyRIC
+netifaces
+yapsy
+psutil
+configparser

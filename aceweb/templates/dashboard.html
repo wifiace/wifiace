@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% block head %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h1>Dashboard<small> Shows information </small></h1>
+</div>
+
+<div class="col-lg-12">
+
+  <div class="panel panel-default col-lg-5 text-center">
+    <div class="panel-body">
+      <h3>{{ info['uptime'] }}</h3> <hr> <p>uptime</p>
+    </div>
+  </div>
+
+  <div class="col-lg-1"></div>
+
+  <div class="panel panel-default col-lg-5 text-center">
+    <div class="panel-body">
+      <h1>{{ info['connected_clients'] }}</h1> <hr> <p>Connected clients</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="col-lg-12">
+
+  <div class="panel panel-default col-lg-2 text-center">
+    <div class="panel-body">
+      <h1 >{{ info['cpu_usage'] }}%</h1> <hr> <small>Cpu Usage</small>
+    </div>
+  </div>
+
+  <div class="col-lg-1"></div>
+
+  <div class="panel panel-default col-lg-2 text-center">
+    <div class="panel-body">
+      <h1>{{ info['memory_usage'] }}%</h1> <hr> <small>memory usage</small>
+    </div>
+  </div>
+
+  <div class="col-lg-1"></div>
+
+  <div class="panel panel-default col-lg-5 text-center">
+    <div class="panel-body">
+      <h3>{{ info['public_ip'] }}</h3> <hr> <small>Public IP</small>
+    </div>
+  </div>
+
+
+</div>
+
+{% endblock %}

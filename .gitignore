@@ -1,0 +1,11 @@
+# Compiled python modules
+*.pyc
+
+# database jornals
+*.db-journal
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+
+# external_tools created by setup.py
+/external_tools/*

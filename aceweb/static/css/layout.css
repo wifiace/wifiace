@@ -1,0 +1,9 @@
+/** Custome sizes for labels **/
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: {{ url_for('static', filename='CENTRALESANSCND-BOLD.otf') }};
+}
+
+body{
+  background-color: #f5f5f5;
+}

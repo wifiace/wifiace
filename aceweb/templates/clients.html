@@ -1,0 +1,283 @@
+{% extends "layout.html" %}
+
+{% block title %} Clients {% endblock %}
+
+{% block head %}
+<script>
+$(document).ready(function(){
+
+  $('#save-settings').click(function(){
+
+    var mode = $('#filter-mode').val();
+
+    $.ajax({
+    url: '/clients/change_filter_mode',
+    data: {mode:mode},
+    type: 'GET',
+
+    success: function(response) {
+        console.log(response);
+    },
+    error: function(error) {
+        if(mode==0)
+          $('#filter-mode').val(1);
+        else
+          $('#filter-mode').val(0);
+
+        console.log(error);
+    }
+    });
+  });
+
+  // accept list opt---------------------------
+  $('#accept-list').change(function(){
+    var myval = $(this).val()[0];
+    $('#accept-textbox').val(myval);
+  });
+
+  $('#add-to-accept').click(function(){
+    var mac = $('#accept-textbox').val();
+
+    var options = $('#accept-list option');
+    var values = $.map(options ,function(option) {
+      return option.value;
+    });
+
+    if ($.inArray(mac, values)== -1 && mac.length>0){
+
+
+          $.ajax({
+          url: '/clients/add_to_filter',
+          data: {file:'accept', mac:mac},
+          type: 'GET',
+
+          success: function(response) {
+              $('#accept-list').append($('<option></option>')
+                  .attr("value", mac)
+                  .text(mac));
+              console.log(response);
+          },
+          error: function(error) {
+              console.log(error);
+          }
+          });
+      }
+    });
+
+    $('#remove-from-accept').click(function(){
+      var mac = $('#accept-textbox').val();
+      var options = $('#accept-list option');
+      var values = $.map(options ,function(option) {
+        return option.value;
+      });
+
+      if ($.inArray(mac, values) != -1 && mac.length>0){
+
+
+            $.ajax({
+            url: '/clients/remove_from_filter',
+            data: {file:'accept', mac:mac},
+            type: 'GET',
+
+            success: function(response) {
+                $('#accept-list option[value="' + mac + '"]').remove();
+                console.log(response);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+            });
+      }
+    });
+
+    //-----------------------------------------
+
+    // deny list opt---------------------------
+    $('#deny-list').change(function(){
+      var myval = $(this).val()[0];
+      $('#deny-textbox').val(myval);
+    });
+
+    $('#add-to-deny').click(function(){
+      var mac = $('#deny-textbox').val();
+
+      var options = $('#deny-list option');
+      var values = $.map(options ,function(option) {
+        return option.value;
+      });
+
+      if ($.inArray(mac, values)== -1 && mac.length>0){
+
+
+            $.ajax({
+            url: '/clients/add_to_filter',
+            data: {file:'deny', mac:mac},
+            type: 'GET',
+
+            success: function(response) {
+                $('#deny-list').append($('<option></option>')
+                    .attr("value", mac)
+                    .text(mac));
+                console.log(response);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+            });
+      }
+  });
+
+  $('#remove-from-deny').click(function(){
+    var mac = $('#deny-textbox').val();
+    var options = $('#deny-list option');
+    var values = $.map(options ,function(option) {
+      return option.value;
+    });
+
+    if ($.inArray(mac, values) != -1 && mac.length>0){
+
+
+          $.ajax({
+          url: '/clients/remove_from_filter',
+          data: {file:'deny', mac:mac},
+          type: 'GET',
+
+          success: function(response) {
+            $('#deny-list option[value="' + mac + '"]').remove();
+            console.log(response);
+          },
+          error: function(error) {
+              console.log(error);
+          }
+          });
+    }
+  });
+
+  $('.kick-out').click(function(){
+    var mac = $(this).closest('tr').find('td:eq(0)').text();
+    window.location = "/clients/deauthenticate_connected?mac="+mac
+  });
+
+});
+</script>
+{% endblock %}
+{% block body %}
+<div class="page-header">
+  <h1>Clients</h1>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading" >
+    <h4 class="panel-title" >
+      <a class="collapsed" role="button" data-toggle="collapse" href="#clients-filters" aria-expanded="false" aria-controls="clients-filters">
+        Client Filters
+      </a>
+    </h4>
+  </div>
+
+  <div id="clients-filters"  class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+  <div class="panel-body">
+  {% if client_filters %}
+  <div class="col-lg-12">
+    <div class="input-group">
+      <span class="input-group-addon">MAC Filter Mode : </span>
+      <select class="form-control" id="filter-mode">
+         <option value="0" {% if client_filters["mode"]=="0" %}selected{% endif %} >Accept unless in deny list</option>
+         <option value="1" {% if client_filters["mode"]=="1" %}selected{% endif %} >Deny unless in accept list</option>
+      </select>
+      <div class="input-group-btn">
+        <button class="btn btn-default" type="button" id="save-settings">Save Settings</button>
+      </div>
+    </div>
+     <br>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Accept List</h3>
+      </div>
+      <div class="panel-body">
+        <select id="accept-list" multiple class="form-control" style="width:100%px;height:200px;">
+          {% for mac in client_filters["accept_list"] %}
+            <option value="{{ mac }}">{{ mac }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="panel-footer">
+
+        <div class="input-group">
+          <input id="accept-textbox" type="text" class="form-control" placeholder="Mac">
+          <span class="input-group-btn">
+            <button id="add-to-accept" type="button" class="btn btn-default" >Add</button>
+            <button id="remove-from-accept" type="button" class="btn btn-default" >Remove</button>
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Deny List</h3>
+      </div>
+      <div class="panel-body">
+        <select multiple id="deny-list" class="form-control" style="width:100%;height:200px;">
+
+          {% for mac in client_filters["deny_list"] %}
+            <option value="{{ mac }}">{{ mac }}</option>
+          {% endfor %}
+
+        </select>
+      </div>
+      <div class="panel-footer">
+
+        <div class="input-group">
+          <input id="deny-textbox" type="text" class="form-control" placeholder="Mac">
+          <span class="input-group-btn">
+            <button id="add-to-deny" type="button" class="btn btn-default" >Add</button>
+            <button id="remove-from-deny" type="button" class="btn btn-default" >Remove</button>
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+    <div class="alert alert-warning" role="alert"> MAC Filtering is not enabled in the rougeap config </div>
+  {% endif %}
+  </div>
+</div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Connected Clients : </h3>
+  </div>
+  <div class="panel-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Client BSSID</th>
+          <th>Client Names</th>
+          <th>IP-Address</th>
+          <th>Option</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for bssid, sta_name, sta_ip in connect_clients %}
+          <tr>
+            <td>{{ bssid }}</td>
+            <td>{{ sta_name }}</td>
+            <td>{{ sta_ip }}</td>
+            <td> <button  class="btn btn-default kick-out" type="button" name="button">kick out</button> </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

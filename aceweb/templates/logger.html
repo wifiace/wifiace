@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+
+{% block title %} Logging {% endblock %}
+
+{% block head %}
+<script>
+  $(document).ready(function(){
+    var timerMilliSec = 10000;
+
+    function loadLog(log_no, textbox_id){
+      $.ajax({
+      url: '/logger/fetchlogs',
+      data: {log_no:log_no},
+      type: 'GET',
+
+      success: function(response) {
+          $(textbox_id).val(response["message"]);
+
+          setTimeout(function(){
+            loadLog(log_no, textbox_id);
+          }, timerMilliSec);
+          console.log("logs for : " + log_no + ": timerMilliSec : " + timerMilliSec);
+      },
+      error: function(error) {
+          console.log(error);
+      }
+      });
+
+    }
+
+    loadLog(0, "#dmesg-log");
+    loadLog(1, "#hostapd-log");
+    loadLog(2, "#dnsmasq-log");
+
+    $("#save-settings").click(function(){
+      timerMilliSec =  Number( $("#set-interval").val() ) * 1000;
+    });
+
+    $("#download-log").click(function(){
+      logno =  $("#log-filename").val();
+      window.location = "/logger/fetchlogs?log_no=" + logno + "&download";
+    });
+  });
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h1>Logger</h1>
+</div>
+<div class="col-lg-5">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Logger Options</h3>
+    </div>
+    <div class="panel-body">
+
+    <div class="form-inline">
+        	<div class="input-group" align="right">
+            <span class="input-group-addon">Update Interval </span>
+            <select class="form-control" id="set-interval" align="right">
+               <option value="10" >10</option>
+               <option value="15" >15</option>
+               <option value="30" >30</option>
+               <option value="60" >1m</option>
+            </select>
+            <div class="input-group-btn">
+              <button class="btn btn-default" type="button" id="save-settings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="form-inline">
+        	<div class="input-group" align="right">
+            <span class="input-group-addon">Download logs </span>
+            <select class="form-control" id="log-filename" align="right">
+              <option value="0" >dmesg-log</option>
+               <option value="1" >hostapd-log</option>
+               <option value="2" >dnsmasq-log</option>
+            </select>
+            <div class="input-group-btn">
+              <button class="btn btn-default" type="button" id="download-log">Download</button>
+            </div>
+        </div>
+    </div>
+
+  </div>
+</div>
+</div>
+<div class="col-lg-12">
+
+    <div class="panel-group" id="accordion">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Hostapd logs</a>
+          </h4>
+        </div>
+        <div id="collapse1" class="panel-collapse collapse in">
+          <div class="panel-body">
+          	<textarea class="form-control well" rows="15" id="hostapd-log" readonly ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">DNSmasq</a>
+          </h4>
+        </div>
+        <div id="collapse2" class="panel-collapse collapse">
+          <div class="panel-body">
+          	<textarea class="form-control well" rows="15" id="dnsmasq-log" readonly ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">DMESG</a>
+          </h4>
+        </div>
+        <div id="collapse3" class="panel-collapse collapse">
+          <div class="panel-body">
+          	<textarea class="form-control well" rows="15" id="dmesg-log" readonly ></textarea>
+          </div>
+        </div>
+      </div>
+  </div>
+
+</div>
+
+{% endblock %}

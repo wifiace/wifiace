@@ -1,0 +1,4 @@
+[submodule "external_tools/hostapd-mana"]
+	path = external_tools/hostapd-mana
+	url = https://github.com/sensepost/hostapd-mana
+	branch = master
