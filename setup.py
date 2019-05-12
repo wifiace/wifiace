@@ -67,7 +67,7 @@ def build_hostapd():
 	print "[INFO]Installing hostapd-mana dependency"
 	
 	try :
-		check_call("apt-get install libssl1.0-dev bridge-utils libnl-genl-3-dev -y",shell=True)
+		check_call("apt-get install bridge-utils build-essential pkg-config libnl-genl-3-dev libssl-dev -y",shell=True)
 	
 	except CalledProcessError :
 		print "[ERROR]Something went wrong while installing dependency please fix and rerun the setup."
