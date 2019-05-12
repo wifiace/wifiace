@@ -26,7 +26,7 @@ Remember to clone repository using ````--recursive```` option.
 
 To install wifiACE manually install the equivalent packages mentioned in the requirements and follow the following steps.
 ```sh
-$ git clone --recursive https://github.com
+$ git clone --recursive https://github.com/wifiace/wifiace
 $ cd wifiace/
 $ pip install -r requirements.txt 
 $ sudo cp config/default/wifiace.conf /etc/
@@ -45,7 +45,7 @@ $ make
 ## WifiACE with Raspberry Pi
 <img src="https://bitbucket.org/repo/EgRE9Rb/images/3104941646-IMG_20180505_165020.jpg" width=500 />
 
-WifiACE can work very well similar to WiFi Pineapple®. Work's perfectly with Kali and Parrotsec on rpi. Just run the setup script and select *yes* when it asks to add WifiACE to *crontab* and enable *USB tethering*.
+WifiACE can work very well similar to WiFi PineappleÂ®. Work's perfectly with Kali and Parrotsec on rpi. Just run the setup script and select *yes* when it asks to add WifiACE to *crontab* and enable *USB tethering*.
 ##### Note : Note : If you are using any OS other than Parrotsec or Kali, following the steps given in the [Manual installation](#manually) and the following steps for startup support and USB tethering.
 #
 #
