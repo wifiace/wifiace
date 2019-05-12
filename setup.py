@@ -144,8 +144,8 @@ def set_hotplugs():
 def main():
 	check_firejail()
 	install_apt_pip()
-	hostapd_check()
 	set_conf()
+	hostapd_check()
 	set_cron()
 	set_hotplugs()
 
